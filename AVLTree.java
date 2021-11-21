@@ -11,6 +11,8 @@ public class AVLTree {
 	
 	IAVLNode root;
   	final IAVLNode VIRTUAL_NODE = new AVLNode();
+  	int inOrderCounter = 0;
+  	int rebalancingCounter = 0;
 
   	public AVLTree() {
   		this.root = null;
@@ -23,7 +25,7 @@ public class AVLTree {
    *
    */
 	public boolean empty() {
-		if (this.root == null) {
+		if (this.getRoot() == null) {
 			return true;
 		}
 		return false;
@@ -36,21 +38,104 @@ public class AVLTree {
    * otherwise, returns null.
    */
   public String search(int k) {
-	  IAVLNode pointer = this.root;
-	  while (pointer != null) {
-		  if (pointer.getKey() == k) {
-			  return pointer.getValue();
+	   if (this.empty()) {
+		   return null;
+	   }	  
+	  IAVLNode current = this.getRoot();
+	  while (current != VIRTUAL_NODE) {
+		  if (current.getKey() == k) {
+			  return current.getValue();
 		  }
-		  else if (pointer.getKey() < k) {
-			  pointer = pointer.getRight();
+		  else if (current.getKey() < k) {
+			  current = current.getRight();
 		  }
 		  else {
-			  pointer = pointer.getLeft();
+			  current = current.getLeft();
 		  }
 	  }
 	  return null;
   }
 
+  
+  private IAVLNode insertPosition(int k) {
+	  IAVLNode current = this.getRoot();
+	  IAVLNode dest_parent = current;
+	  while (current != VIRTUAL_NODE) {
+		  dest_parent = current;
+		  if (current.getKey() == k) {
+			  return current;
+		  }
+		  else if (current.getKey() < k) {
+			  current = current.getRight();
+		  }
+		  else {
+			  current = current.getLeft();
+		  }
+	  }
+	  return dest_parent;
+  }
+  
+  private int getBF(IAVLNode node) {
+	  return (node.getLeft().getHeight() - node.getRight().getHeight());
+  }
+
+  
+  private void promote() {
+	  System.out.println("promote");
+	  rebalancingCounter += 1;
+  }
+
+  
+  private void rightRotation(IAVLNode node) {
+	  System.out.println("R " + node.getKey());
+	  IAVLNode new_parent = node.getLeft();
+	  IAVLNode former_right = new_parent.getRight();
+	  IAVLNode ancestor = node.getParent();
+	  if (ancestor == null) {
+		  this.root = new_parent;
+	  }
+	  else if (ancestor.getLeft() == node) {
+		  ancestor.setLeft(new_parent);
+	  }
+	  else {
+		  ancestor.setRight(new_parent);
+	  }
+	  new_parent.setRight(node);
+	  node.setLeft(former_right);
+	  former_right.setParent(node);
+	  node.setParent(new_parent);
+	  new_parent.setParent(ancestor);
+	  node.setHeight(1 + Math.max(node.getLeft().getHeight(), node.getRight().getHeight()));
+	  new_parent.setHeight(1 + Math.max(new_parent.getLeft().getHeight(), new_parent.getRight().getHeight()));
+	  rebalancingCounter += 1;
+  }
+
+  
+  private void leftRotation(IAVLNode node) {
+	  System.out.println("L " + node.getKey());
+	  IAVLNode new_parent = node.getRight();
+	  IAVLNode former_left = new_parent.getLeft();
+	  IAVLNode ancestor = node.getParent();
+	  if (ancestor == null) {
+		  this.root = new_parent;
+	  }
+	  else if (ancestor.getLeft() == node) {
+		  ancestor.setLeft(new_parent);
+	  }
+	  else {
+		  ancestor.setRight(new_parent);
+	  }
+	  new_parent.setLeft(node);
+	  node.setRight(former_left);
+	  former_left.setParent(node);
+	  node.setParent(new_parent);
+	  new_parent.setParent(ancestor);
+	  node.setHeight(1 + Math.max(node.getLeft().getHeight(), node.getRight().getHeight()));
+	  new_parent.setHeight(1 + Math.max(new_parent.getLeft().getHeight(), new_parent.getRight().getHeight()));
+	  rebalancingCounter += 1;
+  }
+
+  
   /**
    * public int insert(int k, String i)
    *
@@ -61,14 +146,68 @@ public class AVLTree {
    * Returns -1 if an item with key k already exists in the tree.
    */
    public int insert(int k, String i) {
+	   IAVLNode new_node = new AVLNode(k, i, null, VIRTUAL_NODE, VIRTUAL_NODE);
 	   if (this.empty()) {
-		   this.root = new AVLNode(k, i, null, VIRTUAL_NODE, VIRTUAL_NODE);
+		   this.root = new_node;
+		   return 0;
 	   }
-	   //else if ()
-	   //else {
-		   
-	   //}
-	  return 420;	// to be replaced by student code
+	   
+	   IAVLNode dest_parent = insertPosition(k);
+	   if (dest_parent.getKey() == k) {
+		   return -1;
+	   }
+
+	   new_node.setParent(dest_parent);
+	   if (dest_parent.getKey() < k) {
+		   dest_parent.setRight(new_node);
+	   }
+	   else { // dest_parent.getKey() > k
+		   dest_parent.setLeft(new_node);
+	   }
+	   
+	   IAVLNode current = dest_parent;
+	   while (current != null) {
+		   int BF = getBF(current);
+		   int prev_height = current.getHeight();
+		   current.setHeight(1 + Math.max(current.getLeft().getHeight(), current.getRight().getHeight()));
+		   int curr_height = current.getHeight();
+		   if (Math.abs(BF) < 2 && prev_height == curr_height) {
+			   break;
+		   }
+		   else if (Math.abs(BF) < 2) { // promote
+			   promote();
+			   current = current.getParent();
+		   }
+		   else { // rotation
+			   if (BF == -2) {
+				   IAVLNode r_son = current.getRight();
+				   int R_SON_BF = getBF(r_son);
+				   if (R_SON_BF == -1) {
+					   leftRotation(current);
+				   }
+				   else { // (R_SON_BF == 1)
+					   rightRotation(r_son);
+					   leftRotation(current);
+				   }
+			   }
+			   else { // (BF == 2)
+				   IAVLNode l_son = current.getLeft();
+				   int L_SON_BF = getBF(l_son);
+				   if (L_SON_BF == 1) {
+					   rightRotation(current);
+				   }
+				   else { // (L_SON_BF == -1)
+					   leftRotation(l_son);
+					   rightRotation(current);
+				   }
+			   }
+			   break;
+		   }
+	   }
+	  
+	  int res = rebalancingCounter;
+	  rebalancingCounter = 0;
+	  return res;
    }
 
   /**
@@ -91,7 +230,14 @@ public class AVLTree {
     * or null if the tree is empty.
     */
    public String min() {
-	   return "minDefaultString"; // to be replaced by student code
+	   if (this.empty()) {
+		   return null;
+	   }
+	   IAVLNode current = this.getRoot();
+	   while (current.getLeft() != VIRTUAL_NODE) {
+		   current = current.getLeft();
+	   }
+	   return current.getValue();
    }
 
    /**
@@ -101,9 +247,29 @@ public class AVLTree {
     * or null if the tree is empty.
     */
    public String max() {
-	   return "maxDefaultString"; // to be replaced by student code
+	   if (this.empty()) {
+		   return null;
+	   }
+	   IAVLNode current = this.getRoot();
+	   while (current.getRight() != VIRTUAL_NODE) {
+		   current = current.getRight();
+	   }
+	   return current.getValue();
    }
 
+   private void inOrderKeys(IAVLNode node, int[] array) {
+	   if (node == VIRTUAL_NODE) {
+		   return;
+	   }
+	   
+	   inOrderKeys(node.getLeft(), array);
+	   array[inOrderCounter] = node.getKey();
+	   inOrderCounter += 1;
+	   inOrderKeys(node.getRight(), array);
+	   
+   }
+   
+   
   /**
    * public int[] keysToArray()
    *
@@ -111,9 +277,30 @@ public class AVLTree {
    * or an empty array if the tree is empty.
    */
   public int[] keysToArray() {
-        return new int[33]; // to be replaced by student code
+	   if (this.empty()) {
+		   int[] res = {};
+		   return res;
+	   }
+	   
+	   int[] res = new int[this.size()];
+	   inOrderKeys(this.getRoot(), res);
+	   inOrderCounter = 0;
+       return res;
   }
 
+  private void inOrderValues(IAVLNode node, String[] array) {
+	   if (node == VIRTUAL_NODE) {
+		   return;
+	   }
+	   
+	   inOrderValues(node.getLeft(), array);
+	   array[inOrderCounter] = node.getValue();
+	   inOrderCounter += 1;
+	   inOrderValues(node.getRight(), array);
+	   
+  }
+  
+  
   /**
    * public String[] infoToArray()
    *
@@ -122,7 +309,15 @@ public class AVLTree {
    * or an empty array if the tree is empty.
    */
   public String[] infoToArray() {
-        return new String[55]; // to be replaced by student code
+	   if (this.empty()) {
+		   String[] res = {};
+		   return res;
+	   }
+	   
+	   String[] res = new String[this.size()];
+	   inOrderValues(this.getRoot(), res);
+	   inOrderCounter = 0;
+       return res;
   }
 
    /**
@@ -131,7 +326,7 @@ public class AVLTree {
     * Returns the number of nodes in the tree.
     */
    public int size() {
-	   return 422; // to be replaced by student code
+	   return 20; // to be replaced by student code
    }
    
    /**
@@ -140,7 +335,7 @@ public class AVLTree {
     * Returns the root AVL node, or null if the tree is empty
     */
    public IAVLNode getRoot() {
-	   return null;
+	   return this.root;
    }
    
    /**
