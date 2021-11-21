@@ -57,7 +57,7 @@ public class AVLTree {
   }
 
   
-  private IAVLNode insertPosition(int k) {
+  private IAVLNode position(int k) {
 	  IAVLNode current = this.getRoot();
 	  IAVLNode dest_parent = current;
 	  while (current != VIRTUAL_NODE) {
@@ -81,13 +81,13 @@ public class AVLTree {
 
   
   private void promote() {
-	  System.out.println("promote");
+	  //System.out.println("promote"); ///////////////////////////////////////////////////// delete
 	  rebalancingCounter += 1;
   }
 
   
   private void rightRotation(IAVLNode node) {
-	  System.out.println("R " + node.getKey());
+	  //System.out.println("R " + node.getKey()); ///////////////////////////////////////////////////// delete
 	  IAVLNode new_parent = node.getLeft();
 	  IAVLNode former_right = new_parent.getRight();
 	  IAVLNode ancestor = node.getParent();
@@ -112,7 +112,7 @@ public class AVLTree {
 
   
   private void leftRotation(IAVLNode node) {
-	  System.out.println("L " + node.getKey());
+	  //System.out.println("L " + node.getKey()); ///////////////////////////////////////////////////// delete
 	  IAVLNode new_parent = node.getRight();
 	  IAVLNode former_left = new_parent.getLeft();
 	  IAVLNode ancestor = node.getParent();
@@ -152,7 +152,7 @@ public class AVLTree {
 		   return 0;
 	   }
 	   
-	   IAVLNode dest_parent = insertPosition(k);
+	   IAVLNode dest_parent = position(k);
 	   if (dest_parent.getKey() == k) {
 		   return -1;
 	   }
@@ -210,6 +210,10 @@ public class AVLTree {
 	  return res;
    }
 
+   private IAVLNode successor(IAVLNode node) {
+	   
+   }
+   
   /**
    * public int delete(int k)
    *
@@ -220,6 +224,17 @@ public class AVLTree {
    * Returns -1 if an item with key k was not found in the tree.
    */
    public int delete(int k) {
+	   if (this.empty()) {
+		   return -1;
+	   }
+	   
+	   IAVLNode node_position = position(k);
+	   if (node_position.getKey() != k) { // key was not found in tree
+		   return -1;
+	   }
+
+	   
+	   
 	   return 421;	// to be replaced by student code
    }
 
