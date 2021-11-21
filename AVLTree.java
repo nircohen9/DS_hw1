@@ -8,16 +8,26 @@
  */
 
 public class AVLTree {
+	
+	AVLNode root;
+  	final AVLNode VIRTUAL_NODE = new AVLNode();
 
+  	public AVLTree() {
+  		this.root = null;
+  	}
+	
   /**
    * public boolean empty()
    *
    * Returns true if and only if the tree is empty.
    *
    */
-  public boolean empty() {
-    return false; // to be replaced by student code
-  }
+	public boolean empty() {
+		if (this.root == null) {
+			return true;
+		}
+		return false;
+	}
 
  /**
    * public String search(int k)
@@ -25,9 +35,20 @@ public class AVLTree {
    * Returns the info of an item with key k if it exists in the tree.
    * otherwise, returns null.
    */
-  public String search(int k)
-  {
-	return "searchDefaultString";  // to be replaced by student code
+  public String search(int k) {
+	  AVLNode pointer = this.root;
+	  while (pointer != null) {
+		  if (pointer.key == k) {
+			  return pointer.info;
+		  }
+		  else if (pointer.key < k) {
+			  pointer = pointer.right;
+		  }
+		  else {
+			  pointer = pointer.left;
+		  }
+	  }
+	  return null;
   }
 
   /**
@@ -40,6 +61,13 @@ public class AVLTree {
    * Returns -1 if an item with key k already exists in the tree.
    */
    public int insert(int k, String i) {
+	   if (this.empty()) {
+		   this.root = new AVLNode(k, i, null, VIRTUAL_NODE, VIRTUAL_NODE);
+	   }
+	   //else if ()
+	   //else {
+		   
+	   //}
 	  return 420;	// to be replaced by student code
    }
 
@@ -52,8 +80,7 @@ public class AVLTree {
    * A promotion/rotation counts as one re-balance operation, double-rotation is counted as 2.
    * Returns -1 if an item with key k was not found in the tree.
    */
-   public int delete(int k)
-   {
+   public int delete(int k) {
 	   return 421;	// to be replaced by student code
    }
 
@@ -63,8 +90,7 @@ public class AVLTree {
     * Returns the info of the item with the smallest key in the tree,
     * or null if the tree is empty.
     */
-   public String min()
-   {
+   public String min() {
 	   return "minDefaultString"; // to be replaced by student code
    }
 
@@ -74,8 +100,7 @@ public class AVLTree {
     * Returns the info of the item with the largest key in the tree,
     * or null if the tree is empty.
     */
-   public String max()
-   {
+   public String max() {
 	   return "maxDefaultString"; // to be replaced by student code
    }
 
@@ -85,8 +110,7 @@ public class AVLTree {
    * Returns a sorted array which contains all keys in the tree,
    * or an empty array if the tree is empty.
    */
-  public int[] keysToArray()
-  {
+  public int[] keysToArray() {
         return new int[33]; // to be replaced by student code
   }
 
@@ -97,8 +121,7 @@ public class AVLTree {
    * sorted by their respective keys,
    * or an empty array if the tree is empty.
    */
-  public String[] infoToArray()
-  {
+  public String[] infoToArray() {
         return new String[55]; // to be replaced by student code
   }
 
@@ -107,8 +130,7 @@ public class AVLTree {
     *
     * Returns the number of nodes in the tree.
     */
-   public int size()
-   {
+   public int size() {
 	   return 422; // to be replaced by student code
    }
    
@@ -117,8 +139,7 @@ public class AVLTree {
     *
     * Returns the root AVL node, or null if the tree is empty
     */
-   public IAVLNode getRoot()
-   {
+   public IAVLNode getRoot() {
 	   return null;
    }
    
@@ -131,8 +152,7 @@ public class AVLTree {
 	* precondition: search(x) != null (i.e. you can also assume that the tree is not empty)
     * postcondition: none
     */   
-   public AVLTree[] split(int x)
-   {
+   public AVLTree[] split(int x) {
 	   return null; 
    }
    
@@ -145,10 +165,9 @@ public class AVLTree {
 	* precondition: keys(t) < x < keys() or keys(t) > x > keys(). t/tree might be empty (rank = -1).
     * postcondition: none
     */   
-   public int join(IAVLNode x, AVLTree t)
-   {
-	   return -1;
-   }
+   	public int join(IAVLNode x, AVLTree t) {
+   		return -1;
+   	}
 
 	/** 
 	 * public interface IAVLNode
@@ -168,7 +187,7 @@ public class AVLTree {
     	public int getHeight(); // Returns the height of the node (-1 for virtual nodes).
 	}
 
-   /** 
+	/** 
     * public class AVLNode
     *
     * If you wish to implement classes other than AVLTree
@@ -176,52 +195,73 @@ public class AVLTree {
     * 
     * This class can and MUST be modified (It must implement IAVLNode).
     */
-  public class AVLNode implements IAVLNode{
-		public int getKey()
-		{
+	public class AVLNode implements IAVLNode {
+	  	
+	  	int key;
+	  	String info;
+	  	int rank;
+	  	AVLNode parent;
+	  	AVLNode left;
+	  	AVLNode right;
+	  	
+	  	public AVLNode() {
+	  		this.key = -1;
+	  		this.rank = -1;
+	  	}
+	  	
+	  	public AVLNode(int key, String info, AVLNode parent, AVLNode left_child, AVLNode right_child) {
+	  		this.key = key;
+	  		this.info = info;
+	  		this.parent = parent;
+	  		this.left = left_child;
+	  		this.right = right_child;
+	  		this.rank = 1 + Math.max(left_child.rank, right_child.rank);
+	  	}
+
+	  
+		public int getKey() {
 			return 423; // to be replaced by student code
 		}
-		public String getValue()
-		{
+		
+		public String getValue() {
 			return "getValueDefault"; // to be replaced by student code
 		}
-		public void setLeft(IAVLNode node)
-		{
+		
+		public void setLeft(IAVLNode node) {
 			return; // to be replaced by student code
 		}
-		public IAVLNode getLeft()
-		{
+		
+		public IAVLNode getLeft() {
 			return null; // to be replaced by student code
 		}
-		public void setRight(IAVLNode node)
-		{
+		
+		public void setRight(IAVLNode node) {
 			return; // to be replaced by student code
 		}
-		public IAVLNode getRight()
-		{
+		
+		public IAVLNode getRight() {
 			return null; // to be replaced by student code
 		}
-		public void setParent(IAVLNode node)
-		{
+		
+		public void setParent(IAVLNode node) {
 			return; // to be replaced by student code
 		}
-		public IAVLNode getParent()
-		{
+		
+		public IAVLNode getParent() {
 			return null; // to be replaced by student code
 		}
-		public boolean isRealNode()
-		{
+		
+		public boolean isRealNode() {
 			return true; // to be replaced by student code
 		}
-	    public void setHeight(int height)
-	    {
+	    
+		public void setHeight(int height) {
 	      return; // to be replaced by student code
 	    }
-	    public int getHeight()
-	    {
+		
+	    public int getHeight() {
 	      return 424; // to be replaced by student code
 	    }
   }
 
 }
-  
