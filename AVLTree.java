@@ -9,8 +9,8 @@
 
 public class AVLTree {
 	
-	AVLNode root;
-  	final AVLNode VIRTUAL_NODE = new AVLNode();
+	IAVLNode root;
+  	final IAVLNode VIRTUAL_NODE = new AVLNode();
 
   	public AVLTree() {
   		this.root = null;
@@ -36,16 +36,16 @@ public class AVLTree {
    * otherwise, returns null.
    */
   public String search(int k) {
-	  AVLNode pointer = this.root;
+	  IAVLNode pointer = this.root;
 	  while (pointer != null) {
-		  if (pointer.key == k) {
-			  return pointer.info;
+		  if (pointer.getKey() == k) {
+			  return pointer.getValue();
 		  }
-		  else if (pointer.key < k) {
-			  pointer = pointer.right;
+		  else if (pointer.getKey() < k) {
+			  pointer = pointer.getRight();
 		  }
 		  else {
-			  pointer = pointer.left;
+			  pointer = pointer.getLeft();
 		  }
 	  }
 	  return null;
@@ -199,68 +199,71 @@ public class AVLTree {
 	  	
 	  	int key;
 	  	String info;
-	  	int rank;
-	  	AVLNode parent;
-	  	AVLNode left;
-	  	AVLNode right;
+	  	int height;
+	  	IAVLNode parent;
+	  	IAVLNode left;
+	  	IAVLNode right;
 	  	
 	  	public AVLNode() {
 	  		this.key = -1;
-	  		this.rank = -1;
+	  		this.height = -1;
 	  	}
 	  	
-	  	public AVLNode(int key, String info, AVLNode parent, AVLNode left_child, AVLNode right_child) {
+	  	public AVLNode(int key, String info, IAVLNode parent, IAVLNode left_child, IAVLNode right_child) {
 	  		this.key = key;
 	  		this.info = info;
-	  		this.parent = parent;
-	  		this.left = left_child;
-	  		this.right = right_child;
-	  		this.rank = 1 + Math.max(left_child.rank, right_child.rank);
+	  		setParent(parent);
+	  		setLeft(left_child);
+	  		setRight(right_child);
+	  		setHeight(1 + Math.max(left_child.getHeight(), right_child.getHeight()));
 	  	}
 
 	  
 		public int getKey() {
-			return 423; // to be replaced by student code
+			return this.key;
 		}
 		
 		public String getValue() {
-			return "getValueDefault"; // to be replaced by student code
+			return this.info;
 		}
 		
 		public void setLeft(IAVLNode node) {
-			return; // to be replaced by student code
+			this.left = node;
 		}
 		
 		public IAVLNode getLeft() {
-			return null; // to be replaced by student code
+			return this.left;
 		}
 		
 		public void setRight(IAVLNode node) {
-			return; // to be replaced by student code
+			this.right = node;
 		}
 		
 		public IAVLNode getRight() {
-			return null; // to be replaced by student code
+			return this.right;
 		}
 		
 		public void setParent(IAVLNode node) {
-			return; // to be replaced by student code
+			this.parent = node;
 		}
 		
 		public IAVLNode getParent() {
-			return null; // to be replaced by student code
+			return this.parent;
 		}
 		
 		public boolean isRealNode() {
-			return true; // to be replaced by student code
+			if ((this.key == -1) && (this.height == -1)) {
+				return false;
+			}
+			return true;
 		}
 	    
 		public void setHeight(int height) {
-	      return; // to be replaced by student code
+	      this.height = height;
 	    }
 		
 	    public int getHeight() {
-	      return 424; // to be replaced by student code
+	      return this.height;
 	    }
   }
 
