@@ -400,6 +400,7 @@ public class AVLTree {
 			   replace(node_position, successor);
 		   }
 		   
+		   current = node_position.getParent();
 		   if (node_position.getRight() == VIRTUAL_NODE) { // node now has no left child
 			   removeLeaf(node_position.getParent(), node_position);
 		   }
