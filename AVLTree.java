@@ -56,6 +56,9 @@ public class AVLTree {
 	  return null;
   }
 
+  private void updateHeight(IAVLNode node) {
+	  node.setHeight(1 + Math.max(node.getLeft().getHeight(), node.getRight().getHeight()));
+  }
   
   private IAVLNode position(int k) {
 	  IAVLNode current = this.getRoot();
@@ -81,13 +84,11 @@ public class AVLTree {
 
   
   private void promote() {
-	  //System.out.println("promote"); ///////////////////////////////////////////////////// delete
 	  rebalancingCounter += 1;
   }
 
   
   private void rightRotation(IAVLNode node) {
-	  //System.out.println("R " + node.getKey()); ///////////////////////////////////////////////////// delete
 	  IAVLNode new_parent = node.getLeft();
 	  IAVLNode former_right = new_parent.getRight();
 	  IAVLNode ancestor = node.getParent();
@@ -102,17 +103,18 @@ public class AVLTree {
 	  }
 	  new_parent.setRight(node);
 	  node.setLeft(former_right);
-	  former_right.setParent(node);
+	  if (former_right != VIRTUAL_NODE) {
+		  former_right.setParent(node);
+	  }
 	  node.setParent(new_parent);
 	  new_parent.setParent(ancestor);
-	  node.setHeight(1 + Math.max(node.getLeft().getHeight(), node.getRight().getHeight()));
-	  new_parent.setHeight(1 + Math.max(new_parent.getLeft().getHeight(), new_parent.getRight().getHeight()));
+	  updateHeight(node);
+	  updateHeight(new_parent);
 	  rebalancingCounter += 1;
   }
 
   
   private void leftRotation(IAVLNode node) {
-	  //System.out.println("L " + node.getKey()); ///////////////////////////////////////////////////// delete
 	  IAVLNode new_parent = node.getRight();
 	  IAVLNode former_left = new_parent.getLeft();
 	  IAVLNode ancestor = node.getParent();
@@ -127,11 +129,13 @@ public class AVLTree {
 	  }
 	  new_parent.setLeft(node);
 	  node.setRight(former_left);
-	  former_left.setParent(node);
+	  if (former_left != VIRTUAL_NODE) {
+		  former_left.setParent(node);
+	  }
 	  node.setParent(new_parent);
 	  new_parent.setParent(ancestor);
-	  node.setHeight(1 + Math.max(node.getLeft().getHeight(), node.getRight().getHeight()));
-	  new_parent.setHeight(1 + Math.max(new_parent.getLeft().getHeight(), new_parent.getRight().getHeight()));
+	  updateHeight(node);
+	  updateHeight(new_parent);
 	  rebalancingCounter += 1;
   }
 
@@ -169,16 +173,17 @@ public class AVLTree {
 	   while (current != null) {
 		   int BF = getBF(current);
 		   int prev_height = current.getHeight();
-		   current.setHeight(1 + Math.max(current.getLeft().getHeight(), current.getRight().getHeight()));
+		   updateHeight(current);
 		   int curr_height = current.getHeight();
 		   if (Math.abs(BF) < 2 && prev_height == curr_height) {
-			   break;
+			   current = current.getParent();
+			   continue;
 		   }
 		   else if (Math.abs(BF) < 2) { // promote
 			   promote();
 			   current = current.getParent();
 		   }
-		   else { // rotation
+		   else { // rotation/s then terminate
 			   if (BF == -2) {
 				   IAVLNode r_son = current.getRight();
 				   int R_SON_BF = getBF(r_son);
@@ -210,8 +215,154 @@ public class AVLTree {
 	  return res;
    }
 
+   private void removeLeaf(IAVLNode father, IAVLNode toBeRemoved) {
+		  if (father != null && father.getLeft() == toBeRemoved) {
+			  father.setLeft(VIRTUAL_NODE);
+			  while (father != null) {
+				  updateHeight(father);
+				  father = father.getParent();
+			  }
+			  
+		  }
+		  else if (father != null && father.getRight() == toBeRemoved) {
+			  father.setRight(VIRTUAL_NODE);
+			  while (father != null) {
+				  updateHeight(father);
+				  father = father.getParent();
+			  }
+		  }
+		  else {
+			  this.root = null;
+		  }
+   }
+   
+   private void removeByPass(IAVLNode father, IAVLNode toBeRemoved) {
+	   if (father != null && father.getLeft() == toBeRemoved) {
+		   if (toBeRemoved.getLeft() == VIRTUAL_NODE) {
+			   father.setLeft(toBeRemoved.getRight());
+		   }
+		   else {
+			   father.setLeft(toBeRemoved.getLeft());
+		   }
+		   if (father.getLeft() != VIRTUAL_NODE) {
+			   father.getLeft().setParent(father);
+		   }
+		   while (father != null) {
+			   updateHeight(father);
+			   father = father.getParent();
+			   }
+
+	   }
+	   else if (father != null && father.getRight() == toBeRemoved) {
+		   if (toBeRemoved.getLeft() == VIRTUAL_NODE) {
+			   father.setRight(toBeRemoved.getRight());
+		   }
+		   else {
+			   father.setRight(toBeRemoved.getLeft());
+		   }
+		   if (father.getRight() != VIRTUAL_NODE) {
+			   father.getRight().setParent(father);
+		   }
+		   while (father != null) {
+			   updateHeight(father);
+			   father = father.getParent();
+			   }
+	   }
+	   else if (father == null && toBeRemoved.getLeft() == VIRTUAL_NODE) {
+		   this.root = toBeRemoved.getRight();
+	   }
+	   else { // (father == null && toBeRemoved.getRight() == VIRTUAL_NODE)
+		   this.root = toBeRemoved.getLeft();
+	   }
+
+   }
+
    private IAVLNode successor(IAVLNode node) {
+	   if (node.getRight() != VIRTUAL_NODE) {
+		   IAVLNode current = node.getRight();
+		   while (current.getLeft() != VIRTUAL_NODE) {
+			   current = current.getLeft();
+		   }
+		   return current;
+	   }
 	   
+	   IAVLNode current = node;
+	   IAVLNode father = node.getParent();
+	   while (father != null && current == father.getRight()) {
+		   current = father;
+		   father = current.getParent();
+	   }
+	   if (father == null) {
+		   return null;
+	   }
+	   return father;
+   }
+   
+   private void replaceNeighbors(IAVLNode father, IAVLNode son) {
+	   if (father.getRight() == son) {
+		   father.setRight(father);   
+	   }
+	   else {
+		   father.setLeft(father);
+	   }
+	   son.setParent(son);
+   }
+   
+   
+   private void replace(IAVLNode toBeRemoved, IAVLNode successor) {
+	   if (toBeRemoved.getParent() == successor) {
+		   replaceNeighbors(successor, toBeRemoved);
+	   }
+	   else if (successor.getParent() == toBeRemoved) {
+		   replaceNeighbors(toBeRemoved, successor);
+	   }
+	   
+	   IAVLNode new_parent = toBeRemoved.getParent();
+	   IAVLNode new_right = toBeRemoved.getRight();
+	   IAVLNode new_left = toBeRemoved.getLeft();
+	   int new_height = toBeRemoved.getHeight();
+	   
+	   IAVLNode old_parent = successor.getParent();
+	   IAVLNode old_right = successor.getRight();
+	   IAVLNode old_left = successor.getLeft();
+	   int old_height = successor.getHeight();
+	   
+	   successor.setParent(new_parent);
+	   successor.setRight(new_right);
+	   successor.setLeft(new_left);
+	   successor.setHeight(new_height);
+	   
+	   toBeRemoved.setParent(old_parent);
+	   toBeRemoved.setRight(old_right);
+	   toBeRemoved.setLeft(old_left);
+	   toBeRemoved.setHeight(old_height);
+	   
+	   if (successor.getParent() == null) {
+		   this.root = successor;
+	   }
+	   else if (successor.getParent().getLeft() == toBeRemoved) {
+		   successor.getParent().setLeft(successor);
+	   }
+	   else {
+		   successor.getParent().setRight(successor);
+	   }
+	   
+	   if (toBeRemoved.getParent() == null) {
+		   this.root = toBeRemoved;
+	   }
+	   else if (toBeRemoved.getParent().getLeft() == successor) {
+		   toBeRemoved.getParent().setLeft(toBeRemoved);
+	   }
+	   else {
+		   toBeRemoved.getParent().setRight(toBeRemoved);
+	   }
+	   
+	   successor.getLeft().setParent(successor); // toBeRemoved had originally 2 children
+	   successor.getRight().setParent(successor);
+	   
+	   if (toBeRemoved.getRight() != VIRTUAL_NODE) { // toBeRemoved (now) doesn't have a left child
+		   toBeRemoved.getRight().setParent(toBeRemoved);
+	   }
    }
    
   /**
@@ -232,10 +383,75 @@ public class AVLTree {
 	   if (node_position.getKey() != k) { // key was not found in tree
 		   return -1;
 	   }
+	   
+	   IAVLNode current = node_position.getParent(); // current is the deleted node's father
+	   
+	   if (node_position.getLeft() == VIRTUAL_NODE && node_position.getRight() == VIRTUAL_NODE) { // delete leaf
+		   removeLeaf(current, node_position);
+	   }
+	   
+	   else if (node_position.getLeft() == VIRTUAL_NODE || node_position.getRight() == VIRTUAL_NODE) { // delete bypass
+		   removeByPass(current, node_position);
+	   }
+	   
+	   else { // replace, then delete
+		   IAVLNode successor = successor(node_position);
+		   if (successor != null) { // replace
+			   replace(node_position, successor);
+		   }
+		   
+		   if (node_position.getRight() == VIRTUAL_NODE) { // node now has no left child
+			   removeLeaf(node_position.getParent(), node_position);
+		   }
+		   else { // (node_position.getRight() != VIRTUAL_NODE)
+			   removeByPass(node_position.getParent(), node_position);
+		   }
+	   }
+	   
+	   while (current != null) {
+		   int BF = getBF(current);
+		   int prev_height = current.getHeight();
+		   current.setHeight(1 + Math.max(current.getLeft().getHeight(), current.getRight().getHeight()));
+		   int curr_height = current.getHeight();
+		   if (Math.abs(BF) < 2 && prev_height == curr_height) {
+			   current = current.getParent();
+			   continue;
+		   }
+		   else if (Math.abs(BF) < 2) { // promote
+			   promote();
+			   current = current.getParent();
+		   }
+		   else { // rotation/s
+			   if (BF == -2) {
+				   IAVLNode r_son = current.getRight();
+				   int R_SON_BF = getBF(r_son);
+				   if (R_SON_BF == -1 || R_SON_BF == 0) { // +extra case
+					   leftRotation(current);
+				   }
+				   else { // (R_SON_BF == 1)
+					   rightRotation(r_son);
+					   leftRotation(current);
+				   }
+			   }
+			   else { // (BF == 2)
+				   IAVLNode l_son = current.getLeft();
+				   int L_SON_BF = getBF(l_son);
+				   if (L_SON_BF == 1 || L_SON_BF == 0) { // +extra case
+					   rightRotation(current);
+				   }
+				   else { // (L_SON_BF == -1)
+					   leftRotation(l_son);
+					   rightRotation(current);
+				   }
+			   }
+			   current = current.getParent(); // without termination
+		   }
+	   }
+	  
+	  int res = rebalancingCounter;
+	  rebalancingCounter = 0;
+	  return res;
 
-	   
-	   
-	   return 421;	// to be replaced by student code
    }
 
    /**
