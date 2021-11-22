@@ -402,10 +402,10 @@ public class AVLTree {
 		   
 		   current = node_position.getParent();
 		   if (node_position.getRight() == VIRTUAL_NODE) { // node now has no left child
-			   removeLeaf(node_position.getParent(), node_position);
+			   removeLeaf(current, node_position);
 		   }
 		   else { // (node_position.getRight() != VIRTUAL_NODE)
-			   removeByPass(node_position.getParent(), node_position);
+			   removeByPass(current, node_position);
 		   }
 	   }
 	   
