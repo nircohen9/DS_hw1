@@ -11,6 +11,8 @@ public class AVLTree {
 	
 	IAVLNode root;
   	final IAVLNode VIRTUAL_NODE = new AVLNode();
+  	String MIN = null;
+  	String MAX = null;
   	int inOrderCounter = 0;
   	int rebalancingCounter = 0;
 
@@ -210,6 +212,8 @@ public class AVLTree {
 		   }
 	   }
 	  
+	   this.updateMin();
+	   this.updateMax();
 	  int res = rebalancingCounter;
 	  rebalancingCounter = 0;
 	  return res;
@@ -449,11 +453,37 @@ public class AVLTree {
 		   }
 	   }
 	  
+	  this.updateMin();
+	  this.updateMax();
 	  int res = rebalancingCounter;
 	  rebalancingCounter = 0;
 	  return res;
 
    }
+   
+   private void updateMin() {
+	   if (this.empty()) {
+		   this.MIN = null;
+	   }
+	   IAVLNode current = this.getRoot();
+	   while (current.getLeft() != VIRTUAL_NODE) {
+		   current = current.getLeft();
+	   }
+	   this.MIN = current.getValue();
+   }
+   
+   private void updateMax() {
+	   if (this.empty()) {
+		   this.MAX = null;
+	   }
+	   IAVLNode current = this.getRoot();
+	   while (current.getRight() != VIRTUAL_NODE) {
+		   current = current.getRight();
+	   }
+	   this.MAX = current.getValue();
+   }
+   
+   
 
    /**
     * public String min()
@@ -461,15 +491,8 @@ public class AVLTree {
     * Returns the info of the item with the smallest key in the tree,
     * or null if the tree is empty.
     */
-   public String min() { // Time Complexity: O(log n)
-	   if (this.empty()) {
-		   return null;
-	   }
-	   IAVLNode current = this.getRoot();
-	   while (current.getLeft() != VIRTUAL_NODE) {
-		   current = current.getLeft();
-	   }
-	   return current.getValue();
+   public String min() { // Time Complexity: O(1)
+	   return this.MIN;
    }
 
    /**
@@ -479,14 +502,7 @@ public class AVLTree {
     * or null if the tree is empty.
     */
    public String max() { // Time Complexity: O(log n)
-	   if (this.empty()) {
-		   return null;
-	   }
-	   IAVLNode current = this.getRoot();
-	   while (current.getRight() != VIRTUAL_NODE) {
-		   current = current.getRight();
-	   }
-	   return current.getValue();
+	   return this.MAX;
    }
 
    private void inOrderKeys(IAVLNode node, int[] array) { // Time Complexity: O(n)
