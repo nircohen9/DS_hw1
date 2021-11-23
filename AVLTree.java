@@ -461,7 +461,7 @@ public class AVLTree {
 
    }
    
-   private void updateMin() {
+   private void updateMin() { // Time Complexity: O(log n)
 	   if (this.empty()) {
 		   this.MIN = null;
 	   }
@@ -472,7 +472,7 @@ public class AVLTree {
 	   this.MIN = current.getValue();
    }
    
-   private void updateMax() {
+   private void updateMax() { // Time Complexity: O(log n)
 	   if (this.empty()) {
 		   this.MAX = null;
 	   }
@@ -501,7 +501,7 @@ public class AVLTree {
     * Returns the info of the item with the largest key in the tree,
     * or null if the tree is empty.
     */
-   public String max() { // Time Complexity: O(log n)
+   public String max() { // Time Complexity: O(1)
 	   return this.MAX;
    }
 
