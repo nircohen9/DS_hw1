@@ -277,7 +277,7 @@ public class AVLTree {
 
    }
 
-   private IAVLNode successor(IAVLNode node) { // Time Complexity: O(log n)
+   private IAVLNode successor(IAVLNode node) { // Time Complexity: O(n)
 	   if (node.getRight() != VIRTUAL_NODE) {
 		   IAVLNode current = node.getRight();
 		   while (current.getLeft() != VIRTUAL_NODE) {
