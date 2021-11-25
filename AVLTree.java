@@ -208,7 +208,7 @@ public class AVLTree {
 					   rightRotation(current);
 				   }
 			   }
-			   break;
+			   current = current.getParent();
 		   }
 	   }
 	  
@@ -449,7 +449,7 @@ public class AVLTree {
 					   rightRotation(current);
 				   }
 			   }
-			   current = current.getParent(); // without termination
+			   current = current.getParent();
 		   }
 	   }
 	  
