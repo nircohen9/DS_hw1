@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 /**
  *
  * AVLTree
@@ -14,6 +16,7 @@ public class AVLTree {
   	String MIN = null;
   	String MAX = null;
   	int inOrderCounter = 0;
+	int size = 0;
   	int rebalancingCounter = 0;
 
   	public AVLTree() { // Time Complexity: O(1)
@@ -58,11 +61,13 @@ public class AVLTree {
 	  return null;
   }
 
-  private void updateHeight(IAVLNode node) {  // Time Complexity: O(1)
+  private int updateHeight(IAVLNode node) {  // Time Complexity: O(1)
 	  node.setHeight(1 + Math.max(node.getLeft().getHeight(), node.getRight().getHeight()));
+	  return node.getHeight();
   }
   
   private IAVLNode position(int k) {  // Time Complexity: O(log n)
+	  //finds the appropriate position for a new element to be inserted
 	  IAVLNode current = this.getRoot();
 	  IAVLNode dest_parent = current;
 	  while (current != VIRTUAL_NODE) {
@@ -86,7 +91,7 @@ public class AVLTree {
 
   
   private void promote() { // Time Complexity: O(1)
-	  rebalancingCounter += 1;
+	  this.rebalancingCounter += 1;
   }
 
   
@@ -141,7 +146,42 @@ public class AVLTree {
 	  rebalancingCounter += 1;
   }
 
-  
+  private void balanceUp(IAVLNode v) {
+	  IAVLNode current = v;
+	  while (current != null) {
+		  int BF = getBF(current); //check BF after operation to ascertain compliance with inv
+		  if (Math.abs(BF) < 2 && current.getHeight() != updateHeight(current)) { //Node is compliant with AVL inv
+			  promote();
+		  }
+		  else { //rotate to solve imbalance and restore inv
+			  if (BF == -2) { //tilts right
+				  IAVLNode r_son = current.getRight();
+				  int R_SON_BF = getBF(r_son);
+				  if (R_SON_BF == -1 || R_SON_BF ==0) { //tree is right-heavy
+					  leftRotation(current);
+				  }
+				  else if (R_SON_BF == 1) { //tree is right-left heavy
+					  rightRotation(r_son);
+					  leftRotation(current);
+				  }
+			  }
+			  else if (BF == 2) { //tilts left
+				  IAVLNode l_son = current.getLeft();
+				  int L_SON_BF = getBF(l_son);
+				  if (L_SON_BF == 1 || L_SON_BF==0) { //tree is left heavy
+					  rightRotation(current);
+				  }
+				  else if (L_SON_BF == -1){ //tree is left-right heavy
+					  leftRotation(l_son);
+					  rightRotation(current);
+				  }
+			  }
+		  }
+		  current = current.getParent(); //step-up and verify balance upwards
+	  }
+  }
+
+
   /**
    * public int insert(int k, String i)
    *
@@ -153,13 +193,15 @@ public class AVLTree {
    */
    public int insert(int k, String i) { // Time Complexity: O(log n)
 	   IAVLNode new_node = new AVLNode(k, i, null, VIRTUAL_NODE, VIRTUAL_NODE);
+	   size++;
+
 	   if (this.empty()) {
 		   this.root = new_node;
 		   return 0;
 	   }
 	   
 	   IAVLNode dest_parent = position(k);
-	   if (dest_parent.getKey() == k) {
+	   if (dest_parent.getKey() == k) {  //key already exists in tree
 		   return -1;
 	   }
 
@@ -170,53 +212,14 @@ public class AVLTree {
 	   else { // dest_parent.getKey() > k
 		   dest_parent.setLeft(new_node);
 	   }
-	   
-	   IAVLNode current = dest_parent;
-	   while (current != null) {
-		   int BF = getBF(current);
-		   int prev_height = current.getHeight();
-		   updateHeight(current);
-		   int curr_height = current.getHeight();
-		   if (Math.abs(BF) < 2 && prev_height == curr_height) {
-			   current = current.getParent();
-			   continue;
-		   }
-		   else if (Math.abs(BF) < 2) { // promote
-			   promote();
-			   current = current.getParent();
-		   }
-		   else { // rotation/s then terminate
-			   if (BF == -2) {
-				   IAVLNode r_son = current.getRight();
-				   int R_SON_BF = getBF(r_son);
-				   if (R_SON_BF == -1) {
-					   leftRotation(current);
-				   }
-				   else { // (R_SON_BF == 1)
-					   rightRotation(r_son);
-					   leftRotation(current);
-				   }
-			   }
-			   else { // (BF == 2)
-				   IAVLNode l_son = current.getLeft();
-				   int L_SON_BF = getBF(l_son);
-				   if (L_SON_BF == 1) {
-					   rightRotation(current);
-				   }
-				   else { // (L_SON_BF == -1)
-					   leftRotation(l_son);
-					   rightRotation(current);
-				   }
-			   }
-			   current = current.getParent();
-		   }
-	   }
-	  
+
+	   balanceUp(dest_parent); //performs promotions and rotations as necessary to restore balance
+
 	   this.updateMin();
 	   this.updateMax();
-	  int res = rebalancingCounter;
-	  rebalancingCounter = 0;
-	  return res;
+	   int res = rebalancingCounter;
+	   rebalancingCounter = 0;
+	   return res;
    }
 
    private void removeLeaf(IAVLNode father, IAVLNode toBeRemoved) { // Time Complexity: O(log n)
@@ -506,10 +509,11 @@ public class AVLTree {
    }
 
    private void inOrderKeys(IAVLNode node, int[] array) { // Time Complexity: O(n)
-	   if (node == VIRTUAL_NODE) {
+	   if (node == VIRTUAL_NODE || !node.isRealNode()) {
+		   System.out.println("virt");
 		   return;
 	   }
-	   
+	   System.out.println(node.getKey());
 	   inOrderKeys(node.getLeft(), array);
 	   array[inOrderCounter] = node.getKey();
 	   inOrderCounter += 1;
@@ -525,6 +529,7 @@ public class AVLTree {
    * or an empty array if the tree is empty.
    */
   public int[] keysToArray() { // Time Complexity: O(n)
+	  System.out.println(5);
 	   if (this.empty()) {
 		   int[] res = {};
 		   return res;
@@ -537,7 +542,7 @@ public class AVLTree {
   }
 
   private void inOrderValues(IAVLNode node, String[] array) { // Time Complexity: O(n)
-	   if (node == VIRTUAL_NODE) {
+	   if (node == VIRTUAL_NODE ||!node.isRealNode()) {
 		   return;
 	   }
 	   
@@ -573,8 +578,8 @@ public class AVLTree {
     *
     * Returns the number of nodes in the tree.
     */
-   public int size() { // Time Complexity: O(1) /////////////// modify!!!
-	   return 20; // to be replaced by student code
+   public int size() { // Time Complexity: O(1)
+	   return this.size;
    }
    
    /**
@@ -607,12 +612,80 @@ public class AVLTree {
 	*
 	* precondition: keys(t) < x < keys() or keys(t) > x > keys(). t/tree might be empty (rank = -1).
     * postcondition: none
-    */   
+    */
    	public int join(IAVLNode x, AVLTree t) { // Time Complexity: O(log n)
-   		return -1;
+		this.size += t.size +1;
+		int h1 = this.getRoot().getHeight();
+		int h2 = t.getRoot().getHeight();
+		boolean thisBigger = this.getRoot().getKey() > t.getRoot().getKey();
+
+		if (h1 == h2) { //simple join
+			if (thisBigger) { //'this' is right tree
+				x.setRight(this.getRoot());
+				x.setLeft(t.getRoot());
+			}
+			else { //'t' is right tree
+				x.setRight(t.getRoot());
+				x.setLeft(this.getRoot());
+			}
+			x.setParent(null);
+			x.setHeight(h1 + 1);
+			this.root = x;
+		}
+
+		else if (h1 < h2) { //'t' is Taller
+			joinSymmetry(this, t, x, !thisBigger);
+			this.root = t.getRoot();
+		}
+
+		else { //'this' is taller
+			joinSymmetry(t, this, x, thisBigger);
+		}
+
+	  	return Math.abs(h1-h2) + 1;
    	}
 
-	/** 
+
+	private static void joinSymmetry(AVLTree Short, AVLTree Tall,IAVLNode x, boolean TallBigger) {
+	   //We assume: rank(Short) <= rank(Tall)
+		IAVLNode b = Tall.getRoot();
+		if (TallBigger) { //keys(Short) < keys(Tall) --> Tall is right tree
+		   while (b.getHeight() > Short.getRoot().getHeight()) { //Travel to rank(b) <= rank(Short)
+			   b = b.getLeft();
+		   }
+		   //Connecting Short and Tall
+		   IAVLNode c = b.getParent(); //rebalancing origin
+		   x.setRight(b);
+		   x.setLeft(Short.getRoot());
+		   Short.getRoot().setParent(x);
+		   x.setParent(c);
+		   c.setLeft(x);
+		   int k = Short.getRoot().getHeight();
+		   x.setHeight(k+1);
+		   //Restoring balance to the Tree and adhering to the inv
+			Tall.balanceUp(c);
+	   }
+	   	else { //keys(short) > keys(Tall) --> Tall is left tree
+			while (b.getHeight() > Short.getRoot().getHeight()) { //Travel to rank(b) <= rank(Short)
+				b = b.getRight();
+			}
+			//Connecting Short and Tall
+			System.out.println(b.getValue());
+			IAVLNode c = b.getParent(); //rebalancing origin
+			System.out.println(c.getValue());
+			x.setLeft(b);
+			x.setRight(Short.getRoot());
+			Short.getRoot().setParent(x);
+			x.setParent(c);
+			c.setRight(x);
+			int k = Short.getRoot().getHeight();
+			x.setHeight(k+1);
+			//Restoring balance to the Tree and adhering to the inv
+			Tall.balanceUp(c);
+	   }
+	}
+
+	/**
 	 * public interface IAVLNode
 	 * ! Do not delete or modify this - otherwise all tests will fail !
 	 */
