@@ -641,7 +641,7 @@ public class AVLTree {
    	}
 
 
-	private static void joinAsymmetric(AVLTree Short, AVLTree Tall,IAVLNode x, boolean TallBigger) {
+	private static void joinAsymmetric(AVLTree Short, AVLTree Tall,IAVLNode x, boolean TallBigger) { // Time Complexity: O(log n)
 	   //We assume: rank(Short) <= rank(Tall)
 		IAVLNode b = Tall.getRoot();
 
@@ -787,10 +787,12 @@ public class AVLTree {
 	      return this.height;
 	    }
 
-		public int getSize() {return this.size;}
+		public int getSize() { // Time Complexity: O(1)
+			return this.size;
+			}
 
-		public void updateSize() {
-			this.size = this.left.getSize() + this.right.getSize() +1 ;
+		public void updateSize() { // Time Complexity: O(1)
+			this.size = this.left.getSize() + this.right.getSize() +1;
 		}
 
   }
