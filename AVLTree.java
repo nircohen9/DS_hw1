@@ -154,7 +154,7 @@ public class AVLTree {
 	  rebalancingCounter += 1;
   }
 
-  private void balanceUp(IAVLNode v) {
+  private void balanceUp(IAVLNode v) { // Time Complexity: O(log n)
 	  IAVLNode current = v;
 	  while (current != null) {
 		  int BF = getBF(current); //check BF after operation to ascertain compliance with inv
