@@ -1,7 +1,45 @@
 import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
+
 
 public class NadavTest {
+    public static void autoTel(int n, int S, boolean print) {
+        /*
+        AVLTree[] forest = new AVLTree[n];
+        for (int i=0; i<n; i++) {
+            AVLTree randomTree = new AVLTree();
+            int treeSize = ThreadLocalRandom.current().nextInt(0, S);
+            for (int j=0; j<treeSize; j++) {
+                int key = ThreadLocalRandom.current().nextInt(0, 10000);
+                randomTree.insert(key, Integer.toString(key));
+            }
+            if (randomTree.size() != treeSize) System.out.println("ERROR in size: tree #" + i + "has size" +randomTree.size() + "and should have " + treeSize);
+            forest[i] = randomTree;
+        }
+
+
+
+        for (int i=0; i<n; i++) {
+            if (print) Fahn.treePrinter(forest[i].getRoot());
+            for (int j=i+1; j<n; j++) {
+                AVLTree.IAVLNode DR_X = forest[0].new AVLNode(90000011, "DR X", null, forest[0].VIRTUAL_NODE, forest[0].VIRTUAL_NODE);
+                if (print) Fahn.treePrinter(forest[j].getRoot());
+                forest[i].join(DR_X, forest[j]);
+                if (print) Fahn.treePrinter(forest[i].getRoot());
+                forest[i].split(DR_X.getKey());
+            }
+
+
+        }
+
+         */
+    }
+
+
+
     public static void main(String[] args) {
+
+        autoTel(1000,5000, true);
 
         AVLTree t0 = new AVLTree();
         //System.out.println(t0.getRoot().getHeight());
@@ -24,9 +62,10 @@ public class NadavTest {
 
 
 
-        System.out.println(Arrays.toString(t1.keysToArray()));
-        System.out.println(Arrays.toString(t1.infoToArray()));
-        System.out.println(t1.size());
+
+        //System.out.println(Arrays.toString(t1.keysToArray()));
+        //System.out.println(Arrays.toString(t1.infoToArray()));
+        //System.out.println(t1.size());
 
         /*
         System.out.println(t1.getRoot());
@@ -37,7 +76,7 @@ public class NadavTest {
 
 
 
-        AVLTree[] arr = t1.split(22);
+        //AVLTree[] arr = t1.split(22);
         //Fahn.treePrinter(arr[0].getRoot());
 
         /*
@@ -47,7 +86,7 @@ public class NadavTest {
         System.out.println(arr[0].getRoot().getRight().getRight().getValue());
         System.out.println(arr[0].getRoot().getValue());
 
-         */
+
 
 
 
@@ -146,6 +185,8 @@ public class NadavTest {
         System.out.println("\n \n \n Done!");
 
          */
+
+
 
     }
 }
