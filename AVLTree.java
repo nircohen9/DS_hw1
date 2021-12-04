@@ -231,28 +231,19 @@ public class AVLTree {
 	   return res;
    }
 
-   private void removeLeaf(IAVLNode father, IAVLNode toBeRemoved) { // Time Complexity: O(log n)
+   private void removeLeaf(IAVLNode father, IAVLNode toBeRemoved) { // Time Complexity: O(1)
 		  if (father != null && father.getLeft() == toBeRemoved) {
 			  father.setLeft(VIRTUAL_NODE);
-			  while (father != null) {
-				  updateHeight(father);
-				  father = father.getParent();
-			  }
-			  
 		  }
 		  else if (father != null && father.getRight() == toBeRemoved) {
 			  father.setRight(VIRTUAL_NODE);
-			  while (father != null) {
-				  updateHeight(father);
-				  father = father.getParent();
-			  }
 		  }
 		  else {
 			  this.root = null;
 		  }
    }
    
-   private void removeByPass(IAVLNode father, IAVLNode toBeRemoved) { // Time Complexity: O(log n)
+   private void removeByPass(IAVLNode father, IAVLNode toBeRemoved) { // Time Complexity: O(1)
 	   if (father != null && father.getLeft() == toBeRemoved) {
 		   if (!toBeRemoved.getLeft().isRealNode()) {
 			   father.setLeft(toBeRemoved.getRight());
@@ -263,10 +254,6 @@ public class AVLTree {
 		   if (father.getLeft().isRealNode()) {
 			   father.getLeft().setParent(father);
 		   }
-		   while (father != null) {
-			   updateHeight(father);
-			   father = father.getParent();
-			   }
 
 	   }
 	   else if (father != null && father.getRight() == toBeRemoved) {
@@ -279,10 +266,6 @@ public class AVLTree {
 		   if (father.getRight().isRealNode()) {
 			   father.getRight().setParent(father);
 		   }
-		   while (father != null) {
-			   updateHeight(father);
-			   father = father.getParent();
-			   }
 	   }
 	   else if (father == null && !toBeRemoved.getLeft().isRealNode()) {
 		   this.root = toBeRemoved.getRight();
