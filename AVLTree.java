@@ -15,6 +15,9 @@ public class AVLTree {
 	String MAX = null;
 	int inOrderCounter = 0;
 	int rebalancingCounter = 0;
+	int searchescounter = 0;
+	IAVLNode FINGER_MAX;
+
 
 	public AVLTree() { // Time Complexity: O(1)
 		this.root = null;
@@ -29,6 +32,8 @@ public class AVLTree {
 		this.root.updateSize();
 		updateHeight(p);
 	}
+
+
 
 	/**
 	 * public boolean empty()
@@ -87,6 +92,49 @@ public class AVLTree {
 			}
 		}
 		return dest_parent;
+	}
+
+//EXPERIMENT ONLY!
+
+
+	public AVLTree.IAVLNode MSearch(int k) {  // Time Complexity: O(log n)
+		int counter = 0;
+		AVLTree.IAVLNode current = this.FINGER_MAX;
+		AVLTree.IAVLNode dest_parent = current;
+		while (current.getParent() != null && !(current.getKey() <k)) { //find parent smaller than k
+			dest_parent = current;
+			counter++;
+			if (current.getKey() == k) {
+				return current;
+			}
+			else if (current.getKey() > k) {
+				current = current.getParent();
+			}
+		}
+		while (current.isRealNode()) { //find node(k) or insertion point
+			dest_parent = current;
+			counter++;
+			if (current.getKey() == k) {
+				return current;
+			} else if (current.getKey() < k) {
+				current = current.getRight();
+			} else if (current.getKey() > k) {
+				current = current.getLeft();
+			}
+		}
+		searchescounter += counter;
+		return dest_parent;
+	}
+
+	private void updateFingerMax() { // Time Complexity: O(log n)
+		if (this.empty()) {
+			this.FINGER_MAX = null;
+		}
+		IAVLNode current = this.getRoot();
+		while (current.getRight().isRealNode()) {
+			current = current.getRight();
+		}
+		this.FINGER_MAX = current;
 	}
 
 	private int getBF(IAVLNode node) { // Time Complexity: O(1)
@@ -154,7 +202,7 @@ public class AVLTree {
 		rebalancingCounter += 1;
 	}
 
-	private void balanceUp(IAVLNode v) { // Time Complexity: O(log n)
+	public void balanceUp(IAVLNode v) { // Time Complexity: O(log n)
 		IAVLNode current = v;
 		while (current != null) {
 			int BF = getBF(current); //check BF after operation to ascertain compliance with inv
@@ -229,6 +277,41 @@ public class AVLTree {
 		int res = rebalancingCounter;
 		rebalancingCounter = 0;
 		return res;
+	}
+	//EXPERIMENT ONLY!
+
+	public int Minsert(int k, String i) { // Time Complexity: O(log n)
+		IAVLNode new_node = new AVLNode(k, i, null, VIRTUAL_NODE, VIRTUAL_NODE);
+
+		if (this.empty()) {
+			this.root = new_node;
+			new_node.updateSize();
+			this.updateFingerMax();
+			return 0;
+		}
+
+		IAVLNode dest_parent = MSearch(k);
+		if (dest_parent.getKey() == k) {  //key already exists in tree
+			return -1;
+		}
+
+		new_node.setParent(dest_parent);
+		if (dest_parent.getKey() < k) {
+			dest_parent.setRight(new_node);
+		}
+		else { // dest_parent.getKey() > k
+			dest_parent.setLeft(new_node);
+		}
+
+		balanceUp(dest_parent); //performs promotions and rotations as necessary to restore balance
+
+		this.updateMin();
+		this.updateMax();
+		this.updateFingerMax();
+		int sear = searchescounter;
+		searchescounter = 0;
+
+		return sear;
 	}
 
 	private void removeLeaf(IAVLNode father, IAVLNode toBeRemoved) { // Time Complexity: O(1)
@@ -413,6 +496,7 @@ public class AVLTree {
 
 		this.updateMin();
 		this.updateMax();
+		this.updateFingerMax();
 		int res = rebalancingCounter;
 		rebalancingCounter = 0;
 		return res;
@@ -697,6 +781,7 @@ public class AVLTree {
 			//Restoring balance to the Tree and adhering to the inv
 			Tall.balanceUp(c);
 		}
+
 	}
 
 
@@ -719,6 +804,7 @@ public class AVLTree {
 
 		public int getSize();
 		public void updateSize();
+
 
 	}
 
