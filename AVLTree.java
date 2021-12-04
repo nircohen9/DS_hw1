@@ -584,34 +584,20 @@ public class AVLTree {
 	 * postcondition: none
 	 */
 	public int join(IAVLNode x, AVLTree t) { // Time Complexity: O(log n)
-		   /*
-		if (t.empty()) {
-			IAVLNode b = this.getRoot();
-			while (b.getHeight() > 0) { //Travel to rank(b) <= rank(Short)
-				if (b.getLeft().isRealNode()) b = b.getLeft();
-				else b=b.getRight();
-			}
-			this.insert(x.getKey(),x.getValue());
-			return this.getRoot().getHeight() +2;
-		}
-		if (this.empty()) {
-			t.insert(x.getKey(),x.getValue());
-			this.root = t.getRoot();
-			return this.getRoot().getHeight() +2;
-		}
-
-		    */
-		if (t.empty()) {
+		if (t.empty()) { //Join to empty tree
 			joinAsymmetric(t, this, x);
+			return this.getRoot().getHeight() + 2;
 		}
-		else if (this.empty()) {
+		else if (this.empty()) { //join from empty tree
 			joinAsymmetric(this,t,x);
+			this.root = t.getRoot();
+			return t.getRoot().getHeight() + 2;
 		}
 
 		int h1 = this.getRoot().getHeight();
 		int h2 = t.getRoot().getHeight();
 
-		if (h1 == h2) { //simple join
+		if (h1 == h2) { //simple join (equal heights)
 			if (this.getRoot().getKey()>x.getKey()) { //'this' is right tree
 				x.setRight(this.getRoot());
 				x.setLeft(t.getRoot());
