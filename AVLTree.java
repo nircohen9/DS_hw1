@@ -547,7 +547,6 @@ public class AVLTree {
     * Returns the number of nodes in the tree.
     */
    public int size() { // Time Complexity: O(1)
-	   if (this.empty()) return 0;
 	   return this.getRoot().getSize();
    }
    
@@ -600,13 +599,7 @@ public class AVLTree {
     * postcondition: none
     */
    	public int join(IAVLNode x, AVLTree t) { // Time Complexity: O(log n)
-		   /*
 		if (t.empty()) {
-			IAVLNode b = this.getRoot();
-			while (b.getHeight() > 0) { //Travel to rank(b) <= rank(Short)
-				if (b.getLeft().isRealNode()) b = b.getLeft();
-				else b=b.getRight();
-			}
 			this.insert(x.getKey(),x.getValue());
 			return this.getRoot().getHeight() +2;
 		}
@@ -616,19 +609,12 @@ public class AVLTree {
 			return this.getRoot().getHeight() +2;
 		}
 
-		    */
-		if (t.empty()) {
-			joinAsymmetric(t, this, x);
-		}
-		else if (this.empty()) {
-			joinAsymmetric(this,t,x);
-		}
-
 		int h1 = this.getRoot().getHeight();
 		int h2 = t.getRoot().getHeight();
+		boolean thisBigger = this.getRoot().getKey() > t.getRoot().getKey();
 
 		if (h1 == h2) { //simple join
-			if (this.getRoot().getKey()>x.getKey()) { //'this' is right tree
+			if (thisBigger) { //'this' is right tree
 				x.setRight(this.getRoot());
 				x.setLeft(t.getRoot());
 			}
@@ -643,12 +629,12 @@ public class AVLTree {
 		}
 
 		else if (h1 < h2) { //'t' is Taller
-			joinAsymmetric(this, t, x);
+			joinAsymmetric(this, t, x, !thisBigger);
 			this.root = t.getRoot();
 		}
 
 		else { //'this' is taller
-			joinAsymmetric(t, this, x);
+			joinAsymmetric(t, this, x, thisBigger);
 		}
 
 	  	return Math.abs(h1-h2) + 1;
@@ -658,36 +644,6 @@ public class AVLTree {
 	private static void joinAsymmetric(AVLTree Short, AVLTree Tall,IAVLNode x) {
 	   //We assume: rank(Short) <= rank(Tall)
 		IAVLNode b = Tall.getRoot();
-		boolean TallBigger = Tall.getRoot().getKey() > x.getKey();
-
-		if (Short.empty()) {//Join between non-empty tree and empty tree (X is never empty)
-			if (TallBigger) { //Tall is right tree
-				while (b.getHeight() > 0) { //Travel to leftmost leaf
-					if (b.getLeft().isRealNode()) b = b.getLeft();
-					else b=b.getRight();
-				}
-				IAVLNode c = b.getParent();
-				x.setRight(b);
-				x.setLeft(Tall.VIRTUAL_NODE);
-				x.setParent(c);
-				c.setLeft(x);
-				x.setHeight(1);
-				Tall.balanceUp(c);
-			}
-			else { //Tall is left tree
-				while (b.getHeight() > 0) { //Travel to Rightmost leaf
-					if (b.getRight().isRealNode()) b = b.getRight();
-					else b=b.getLeft();
-				}
-				IAVLNode c = b.getParent();
-				x.setLeft(b);
-				x.setRight(Tall.VIRTUAL_NODE);
-				x.setParent(c);
-				c.setRight(x);
-				x.setHeight(1);
-				Tall.balanceUp(c);
-			}
-		}
 
 		if (TallBigger) { //keys(Short) < keys(Tall) --> Tall is right tree
 			while (b.getHeight() > Short.getRoot().getHeight()) { //Travel to rank(b) <= rank(Short)
