@@ -38,6 +38,7 @@ public class NadavTest {
 
 
     public static void main(String[] args) {
+        AVLTree.IAVLNode ttttt = null;
 
         autoTel(1000,5000, true);
 
@@ -76,10 +77,9 @@ public class NadavTest {
 
 
 
-        //AVLTree[] arr = t1.split(22);
+        AVLTree[] arr = t1.split(22);
         //Fahn.treePrinter(arr[0].getRoot());
 
-        /*
 
         System.out.println(arr[0].getRoot().getValue());
         System.out.println(arr[0].getRoot().getLeft().getValue());
@@ -180,11 +180,11 @@ public class NadavTest {
 
 
 
-
+*/
 
         System.out.println("\n \n \n Done!");
 
-         */
+
 
 
 

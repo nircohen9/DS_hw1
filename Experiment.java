@@ -28,15 +28,15 @@ public class Experiment {
             //return new int[]{searches, changes(keys)};
             int r = random.nextInt(N-1);
             AVLTree[] s = randomTree.split(keys[r]);
-            int sum1 = randomTree.splitjoinsum;
-            int avg1 = sum1/randomTree.splitjoincounter;
-            int max1 = randomTree.splitjoinmax;
+            //int sum1 = randomTree.splitjoinsum;
+            //int avg1 = sum1/randomTree.splitjoincounter;
+            //int max1 = randomTree.splitjoinmax;
 
 
             AVLTree[] ssss =  randomTree2.split(getLeftMax(randomTree2.getRoot()));
-            int sum2 = randomTree2.splitjoinsum;
-            int avg2 = sum2/randomTree2.splitjoincounter;
-            int max2 = randomTree2.splitjoinmax;
+            //int sum2 = randomTree2.splitjoinsum;
+            //int avg2 = sum2/randomTree2.splitjoincounter;
+            //int max2 = randomTree2.splitjoinmax;
 
 
             //s[0].join(randomTree.MSearch(r), s[1]);
@@ -44,7 +44,7 @@ public class Experiment {
             //s[0].split(getLeftMax(s[0].getRoot()));
             //int sss2 = s[0].splitjoincounter;
            // s[0].splitjoincounter = 0;
-            return new int[][]{{avg1, max1},{avg2, max2}};
+            //return new int[][]{{avg1, max1},{avg2, max2}};
 
 
 
@@ -53,7 +53,7 @@ public class Experiment {
         else {
             AVLTree reverseTree = new AVLTree();
             for (int j=N; j>0; j--){
-                int c = reverseTree.Minsert(j, Integer.toString(j));
+                int c = reverseTree.insert(j, Integer.toString(j));
                 keys[N-j] = j;
                 if (c>=0) {
                     searches += c;
@@ -121,11 +121,17 @@ public class Experiment {
          */
 
 
-        for (int i =1; i<=15; i++) {
+        for (int i =1; i<=8; i++) {
             System.out.println("Experiment #" +i + ":");
             int[][] arr = sprout(i, true);
-            System.out.println("Results for random split: \n avg: " + arr[0][0] + " and max is: " + arr[0][1]);
-            System.out.println("Results for max split: \n avg: " + arr[1][0] + " and max is: " + arr[1][1] + "\n\n");
+            if (i==5) {
+                for (int j=0; j<50; j++) {
+                    System.out.print(j);
+                    int[][] arr1 = sprout(i, true);
+                }
+            }
+            //System.out.println("Results for random split: \n avg: " + arr[0][0] + " and max is: " + arr[0][1]);
+            //System.out.println("Results for max split: \n avg: " + arr[1][0] + " and max is: " + arr[1][1] + "\n\n");
         }
 
 
